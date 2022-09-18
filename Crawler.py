@@ -1,6 +1,8 @@
 import csv
 from re import search, template
+from ssl import Options
 from unittest import result
+from webbrowser import get
 from bs4 import BeautifulSoup
 
 # Firefox and Chrome
@@ -103,4 +105,45 @@ def extract_record(item):
 for row in records:
     print(row[1])
 
+#Scroll through 20 pages
+def get_url(search_term):
+    """Generate an URL from search term"""
+    template = 'https://www.amazon.in/s?k=()&ref=nb_sb_noss_1'
+    search_term = search_term.replace(' ','+')
 
+    #addterm query
+    url = template.format(search_term)
+
+    # add page query
+    url += '&page{}'
+    return url
+
+# Main Function
+def main(search_term):
+    #starup the webdriver
+    options.use_chromium = True
+
+
+    record = []
+    url = get_url(search_term)
+
+
+    for page in range(1,21):
+        driver.get(url.format(page))
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        results = soup.find_all('div', {'data-component-type': 's-search-result'})
+
+        for item in results:
+            record = extract_record(item)
+            if record:
+                records.append(record)
+    
+    driver.close()
+
+    # save date to csv
+    with open('results.csv','w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Description', 'Price', 'Rating','ReviewCount','Url'])
+        writer.writerows(records)
+
+# Enter Search Term main('')
